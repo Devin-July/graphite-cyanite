@@ -15,18 +15,22 @@ setup(
     zip_safe=False,
     include_package_data=True,
     platforms='any',
-    classifiers=(
+    classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Topic :: System :: Monitoring',
-    ),
+    ],
     install_requires=(
-        'requests',
-        'pylru',
+        'requests>=2.20.0',
+        'pylru>=1.2.0',
     ),
     test_suite='tests',
 )
