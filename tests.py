@@ -77,11 +77,11 @@ class CyaniteTests(TestCase):
         self.assertEqual(set(series.keys()), set(['foo.bar', 'foo.baz']))
 
     def test_chunk(self):
-        mylist = range(1000, 9999)
+        mylist = list(range(1000, 9999))
         self.assertEqual(len(list(chunk(mylist, 4))), 9000)
 
     def test_django_configuration_requires_django(self):
-        with self.assertRaises((ImportError, ModuleNotFoundError)):
+        with self.assertRaises(ImportError):
             CyaniteFinder(config=None)
 
     def test_single_url_config(self):
