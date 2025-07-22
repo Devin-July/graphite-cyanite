@@ -6,7 +6,7 @@ setup(
     version='0.4.7',
     url='https://github.com/coupang/graphite-cyanite',
     license='BSD',
-    author=u'Bruno Renié',
+    author='Bruno Renié',
     author_email='bruno@renie.fr',
     description=('A plugin for using graphite-web with the cassandra-based '
                  'Cyanite storage backend'),
@@ -22,6 +22,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
         'Topic :: System :: Monitoring',
     ),
     install_requires=(
