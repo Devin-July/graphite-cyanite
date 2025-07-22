@@ -9,13 +9,13 @@ from graphite_api.intervals import IntervalSet
 
 class CyaniteTests(TestCase):
     def test_conf(self):
-        config = {'cyanite': {'urls': ['http://host1:8080',
-                                       'http://host2:9090']}}
+        config = {'cyanite': {'urls': ['https://host1:8080',
+                                       'https://host2:9090']}}
         CyaniteFinder(config)
         from cyanite import urls
-        self.assertEqual(urls.host, 'http://host1:8080')
-        self.assertEqual(urls.host, 'http://host2:9090')
-        self.assertEqual(urls.host, 'http://host1:8080')
+        self.assertEqual(urls.host, 'https://host1:8080')
+        self.assertEqual(urls.host, 'https://host2:9090')
+        self.assertEqual(urls.host, 'https://host1:8080')
 
     @patch('requests.get')
     def test_metrics(self, get):
@@ -25,12 +25,12 @@ class CyaniteTests(TestCase):
             {'path': 'foo.bar',
              'leaf': 1},
         ]
-        finder = CyaniteFinder({'cyanite': {'url': 'http://host:8080'}})
+        finder = CyaniteFinder({'cyanite': {'url': 'https://host:8080'}})
         query = FindQuery('foo.*', 50, 100)
         branch, leaf = list(finder.find_nodes(query))
         self.assertEqual(leaf.path, 'foo.bar')
         self.assertEqual(branch.path, 'foo.')
-        get.assert_called_once_with('http://host:8080/paths',
+        get.assert_called_once_with('https://host:8080/paths',
                                     params={'query': 'foo.*', 'from': 50, 'to': 100}, timeout=3)
 
         get.reset_mock()
@@ -45,7 +45,7 @@ class CyaniteTests(TestCase):
         self.assertEqual(time_info, (50, 100, 1))
         self.assertEqual(data, list(range(50)))
 
-        get.assert_called_once_with('http://host:8080/metrics',
+        get.assert_called_once_with('https://host:8080/metrics',
                                     params={'to': 100,
                                             'path': 'foo.bar',
                                             'from': 50})
@@ -60,7 +60,7 @@ class CyaniteTests(TestCase):
              'leaf': 1},
         ]
 
-        finder = CyaniteFinder({'cyanite': {'url': 'http://host:8080'}})
+        finder = CyaniteFinder({'cyanite': {'url': 'https://host:8080'}})
         query = FindQuery('foo.*', 50, 100)
         nodes = list(finder.find_nodes(query))
 
@@ -85,14 +85,14 @@ class CyaniteTests(TestCase):
             CyaniteFinder(config=None)
 
     def test_single_url_config(self):
-        config = {'cyanite': {'url': 'http://single:8080/'}}
+        config = {'cyanite': {'url': 'https://single:8080/'}}
         CyaniteFinder(config)
         from cyanite import urls
-        self.assertEqual(urls.host, 'http://single:8080')
+        self.assertEqual(urls.host, 'https://single:8080')
 
     def test_optional_config_parameters(self):
         config = {'cyanite': {
-            'url': 'http://host:8080',
+            'url': 'https://host:8080',
             'urllength': 5000,
             'find_timeout': 5,
             'fetch_timeout': 15
@@ -104,26 +104,26 @@ class CyaniteTests(TestCase):
         self.assertEqual(fetch_timeout, 15)
 
     def test_urls_round_robin(self):
-        urls = URLs(['http://host1:8080', 'http://host2:9090', 'http://host3:7070'])
-        self.assertEqual(urls.host, 'http://host1:8080')
-        self.assertEqual(urls.host, 'http://host2:9090')
-        self.assertEqual(urls.host, 'http://host3:7070')
-        self.assertEqual(urls.host, 'http://host1:8080')
+        urls = URLs(['https://host1:8080', 'https://host2:9090', 'https://host3:7070'])
+        self.assertEqual(urls.host, 'https://host1:8080')
+        self.assertEqual(urls.host, 'https://host2:9090')
+        self.assertEqual(urls.host, 'https://host3:7070')
+        self.assertEqual(urls.host, 'https://host1:8080')
 
     def test_urls_properties(self):
-        urls = URLs(['http://test:8080'])
-        self.assertEqual(urls.paths, 'http://test:8080/paths')
-        self.assertEqual(urls.metrics, 'http://test:8080/metrics')
+        urls = URLs(['https://test:8080'])
+        self.assertEqual(urls.paths, 'https://test:8080/paths')
+        self.assertEqual(urls.metrics, 'https://test:8080/metrics')
 
     def test_urls_single_host(self):
-        urls = URLs(['http://single:8080'])
-        self.assertEqual(urls.host, 'http://single:8080')
-        self.assertEqual(urls.host, 'http://single:8080')
+        urls = URLs(['https://single:8080'])
+        self.assertEqual(urls.host, 'https://single:8080')
+        self.assertEqual(urls.host, 'https://single:8080')
 
     @patch('requests.get')
     def test_cyanite_reader_error_response(self, mock_get):
         import cyanite
-        cyanite.urls = URLs(['http://test:8080'])
+        cyanite.urls = URLs(['https://test:8080'])
         
         mock_get.return_value.json.return_value = {'error': 'Something went wrong'}
         reader = CyaniteReader('test.path')
@@ -133,7 +133,7 @@ class CyaniteTests(TestCase):
     @patch('requests.get')
     def test_cyanite_reader_empty_series(self, mock_get):
         import cyanite
-        cyanite.urls = URLs(['http://test:8080'])
+        cyanite.urls = URLs(['https://test:8080'])
         
         mock_get.return_value.json.return_value = {'series': {}}
         reader = CyaniteReader('test.path')
@@ -143,7 +143,7 @@ class CyaniteTests(TestCase):
     @patch('requests.get')
     def test_cyanite_reader_missing_path(self, mock_get):
         import cyanite
-        cyanite.urls = URLs(['http://test:8080'])
+        cyanite.urls = URLs(['https://test:8080'])
         
         mock_get.return_value.json.return_value = {
             'from': 100, 'to': 200, 'step': 1,
@@ -157,7 +157,7 @@ class CyaniteTests(TestCase):
     @patch('requests.get')
     def test_cyanite_reader_successful_fetch(self, mock_get):
         import cyanite
-        cyanite.urls = URLs(['http://test:8080'])
+        cyanite.urls = URLs(['https://test:8080'])
         
         mock_get.return_value.json.return_value = {
             'from': 100, 'to': 200, 'step': 1,
@@ -178,7 +178,7 @@ class CyaniteTests(TestCase):
         from requests.exceptions import ConnectionError
         mock_get.side_effect = ConnectionError("Connection failed")
         
-        finder = CyaniteFinder({'cyanite': {'url': 'http://host:8080'}})
+        finder = CyaniteFinder({'cyanite': {'url': 'https://host:8080'}})
         query = FindQuery('foo.*', 50, 100)
         
         with self.assertRaises(ConnectionError):
@@ -189,7 +189,7 @@ class CyaniteTests(TestCase):
         from requests.exceptions import Timeout
         mock_get.side_effect = Timeout("Request timed out")
         
-        finder = CyaniteFinder({'cyanite': {'url': 'http://host:8080'}})
+        finder = CyaniteFinder({'cyanite': {'url': 'https://host:8080'}})
         query = FindQuery('foo.*', 50, 100)
         
         with self.assertRaises(Timeout):
@@ -199,7 +199,7 @@ class CyaniteTests(TestCase):
     def test_find_nodes_invalid_json(self, mock_get):
         mock_get.return_value.json.side_effect = ValueError("Invalid JSON")
         
-        finder = CyaniteFinder({'cyanite': {'url': 'http://host:8080'}})
+        finder = CyaniteFinder({'cyanite': {'url': 'https://host:8080'}})
         query = FindQuery('foo.*', 50, 100)
         
         with self.assertRaises(ValueError):
@@ -209,7 +209,7 @@ class CyaniteTests(TestCase):
     def test_fetch_multi_error_response(self, mock_post):
         mock_post.return_value.json.return_value = {'error': 'Server error'}
         
-        finder = CyaniteFinder({'cyanite': {'url': 'http://host:8080'}})
+        finder = CyaniteFinder({'cyanite': {'url': 'https://host:8080'}})
         nodes = [CyaniteLeafNode('test.path', CyaniteReader('test.path'))]
         
         time_info, series = finder.fetch_multi(nodes, 100, 200)
@@ -221,7 +221,7 @@ class CyaniteTests(TestCase):
         from requests.exceptions import ConnectionError
         mock_post.side_effect = ConnectionError("Connection failed")
         
-        finder = CyaniteFinder({'cyanite': {'url': 'http://host:8080'}})
+        finder = CyaniteFinder({'cyanite': {'url': 'https://host:8080'}})
         nodes = [CyaniteLeafNode('test.path', CyaniteReader('test.path'))]
         
         with self.assertRaises(ConnectionError):
@@ -232,7 +232,7 @@ class CyaniteTests(TestCase):
         from requests.exceptions import Timeout
         mock_post.side_effect = Timeout("Request timed out")
         
-        finder = CyaniteFinder({'cyanite': {'url': 'http://host:8080'}})
+        finder = CyaniteFinder({'cyanite': {'url': 'https://host:8080'}})
         nodes = [CyaniteLeafNode('test.path', CyaniteReader('test.path'))]
         
         with self.assertRaises(Timeout):
@@ -242,7 +242,7 @@ class CyaniteTests(TestCase):
     def test_fetch_multi_invalid_json(self, mock_post):
         mock_post.return_value.json.side_effect = ValueError("Invalid JSON")
         
-        finder = CyaniteFinder({'cyanite': {'url': 'http://host:8080'}})
+        finder = CyaniteFinder({'cyanite': {'url': 'https://host:8080'}})
         nodes = [CyaniteLeafNode('test.path', CyaniteReader('test.path'))]
         
         with self.assertRaises(ValueError):
@@ -251,7 +251,7 @@ class CyaniteTests(TestCase):
     @patch('requests.get')
     def test_find_nodes_with_cache(self, mock_get):
         import cyanite
-        finder = CyaniteFinder({'cyanite': {'url': 'http://host:8080'}})
+        finder = CyaniteFinder({'cyanite': {'url': 'https://host:8080'}})
         query = FindQuery('cached.pattern', 50, 100)
         
         cyanite.leafcache['cached.pattern'] = True
@@ -263,4 +263,4 @@ class CyaniteTests(TestCase):
 
     def test_missing_config_key(self):
         with self.assertRaises(KeyError):
-            CyaniteFinder({'other': {'url': 'http://host:8080'}})
+            CyaniteFinder({'other': {'url': 'https://host:8080'}})
